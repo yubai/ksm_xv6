@@ -5,6 +5,11 @@ Version 6 (v6).  xv6 loosely follows the structure and style of v6,
 but is implemented for a modern x86-based multiprocessor using ANSI C.
 
 
-- To test the shared memory management System in xv6, put these three files into the xv6 source folder and you can use the Bochs or QEMU PC simulators. Bochs makes debugging easier, but QEMU is much faster. To run in Bochs, run "make bochs" and then type "c" at the bochs prompt. To run in QEMU, run "make qemu".
+- To test the shared memory management System in xv6, put these files into 
+the xv6 source folder and you can use the Bochs or QEMU PC simulators. 
+Bochs makes debugging easier, but QEMU is much faster. To run in Bochs, 
+run "make bochs" and then type "c" at the bochs prompt. To run in QEMU, 
+run "make qemu".
 
-- To create a typeset version of the code, run "make xv6.pdf".  This requires the "mpage" utility.  See http://www.mesa.nl/pub/mpage/.
+- To create a typeset version of the code, run "make xv6.pdf".  This requires 
+the "mpage" utility.  See http://www.mesa.nl/pub/mpage/.
