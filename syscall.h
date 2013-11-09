@@ -20,3 +20,14 @@
 #define SYS_link   19
 #define SYS_mkdir  20
 #define SYS_close  21
+#define SYS_test   22
+#define SYS_ksmget      23
+#define SYS_ksmattach   24
+#define SYS_ksmdetach   25
+#define SYS_ksminfo     26
+#define SYS_ksmdelete   27
+#define SYS_pgused      28
+#define SYS_sem_get      29
+#define SYS_sem_signal   30
+#define SYS_sem_wait     31
+#define SYS_sem_delete   32

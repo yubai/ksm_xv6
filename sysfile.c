@@ -54,7 +54,7 @@ sys_dup(void)
 {
   struct file *f;
   int fd;
-  
+
   if(argfd(0, 0, &f) < 0)
     return -1;
   if((fd=fdalloc(f)) < 0)
@@ -92,7 +92,7 @@ sys_close(void)
 {
   int fd;
   struct file *f;
-  
+
   if(argfd(0, &fd, &f) < 0)
     return -1;
   proc->ofile[fd] = 0;
@@ -105,7 +105,7 @@ sys_fstat(void)
 {
   struct file *f;
   struct stat *st;
-  
+
   if(argfd(0, 0, &f) < 0 || argptr(1, (void*)&st, sizeof(*st)) < 0)
     return -1;
   return filestat(f, st);
@@ -341,7 +341,7 @@ sys_mknod(void)
   char *path;
   int len;
   int major, minor;
-  
+
   begin_trans();
   if((len=argstr(0, &path)) < 0 ||
      argint(1, &major) < 0 ||
@@ -422,4 +422,129 @@ sys_pipe(void)
   fd[0] = fd0;
   fd[1] = fd1;
   return 0;
+}
+
+int
+sys_test(void)
+{
+  cprintf("sys_test\n");
+  return 0;
+}
+
+// KAUST shared memeory funtions
+int
+sys_ksmget(void)
+{
+  char *name;
+  uint size;
+
+  if(argstr(0, &name) < 0 || argint(1, (int*)&size) < 0){
+    return -1;
+  }
+  
+  return ksmget(name, size);
+}
+
+int
+sys_ksmattach(void)
+{
+  int hd, flag;
+
+  if(argint(0, &hd) < 0 || argint(1, &flag) < 0){
+    return -1;
+  }
+  
+  return ksmattach(hd, flag);
+}
+
+int
+sys_ksmdetach(void)
+{
+  int hd;
+
+  if(argint(0, &hd) < 0){
+    return -1;
+  }
+  
+  return ksmdetach(hd);
+}
+
+int
+sys_ksminfo(void)
+{
+  int hd;
+  struct ksminfo_t* info;
+
+  if(argint(0, &hd) < 0 
+     || argptr(1, (void*)&info, sizeof(info)) < 0){
+    return -1;
+  }
+  
+  return ksminfo(hd, info);
+}
+
+int
+sys_ksmdelete(void)
+{
+  int hd;
+
+  if(argint(0, &hd) < 0){
+    return -1;
+  }
+  
+  return ksmdelete(hd);
+}
+
+int
+sys_pgused(void)
+{
+  return pgused();
+}
+
+int
+sys_sem_get(void)
+{
+  int name, value;
+
+  if(argint(0, &name) < 0 || argint(1, &value) < 0){
+    return -1;
+  }
+  
+  return sem_get(name, value); 
+}
+
+int
+sys_sem_signal(void)
+{
+  int hd;
+
+  if(argint(0, &hd) < 0){
+    return -1;
+  }
+  
+  return sem_signal(hd); 
+}
+
+int
+sys_sem_wait(void)
+{
+  int hd;
+
+  if(argint(0, &hd) < 0){
+    return -1;
+  }
+  
+  return sem_wait(hd); 
+}
+
+int
+sys_sem_delete(void)
+{
+  int hd;
+
+  if(argint(0, &hd) < 0){
+    return -1;
+  }
+  
+  return sem_delete(hd); 
 }

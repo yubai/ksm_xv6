@@ -1,4 +1,5 @@
 struct stat;
+struct ksminfo_t;
 
 // system calls
 int fork(void);
@@ -22,6 +23,18 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
+int test(void);
+
+int ksmget(char* name, uint size);
+int ksmattach(int hd, int flag);
+int ksmdetach(int hd);
+int ksminfo(int hd, struct ksminfo_t* info);
+int ksmdelete(int hd);
+
+int sem_get(uint name, int value);
+int sem_signal(int hd);
+int sem_wait(int hd);
+int sem_delete(int hd);
 
 // ulib.c
 int stat(char*, struct stat*);
@@ -36,3 +49,6 @@ void* memset(void*, int, uint);
 void* malloc(uint);
 void free(void*);
 int atoi(const char*);
+int pgused(void);
+
+

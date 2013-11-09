@@ -19,6 +19,7 @@ struct run {
 struct {
   struct spinlock lock;
   int use_lock;
+  int pgnr;
   struct run *freelist;
 } kmem;
 
@@ -33,13 +34,16 @@ kinit1(void *vstart, void *vend)
   initlock(&kmem.lock, "kmem");
   kmem.use_lock = 0;
   freerange(vstart, vend);
+  kmem.pgnr = 0;
 }
 
 void
 kinit2(void *vstart, void *vend)
 {
+  int pgnr = kmem.pgnr;
   freerange(vstart, vend);
   kmem.use_lock = 1;
+  kmem.pgnr = pgnr;
 }
 
 void
@@ -60,7 +64,7 @@ void
 kfree(char *v)
 {
   struct run *r;
-
+  
   if((uint)v % PGSIZE || v < end || v2p(v) >= PHYSTOP)
     panic("kfree");
 
@@ -72,6 +76,7 @@ kfree(char *v)
   r = (struct run*)v;
   r->next = kmem.freelist;
   kmem.freelist = r;
+  kmem.pgnr--;
   if(kmem.use_lock)
     release(&kmem.lock);
 }
@@ -87,10 +92,25 @@ kalloc(void)
   if(kmem.use_lock)
     acquire(&kmem.lock);
   r = kmem.freelist;
-  if(r)
+  if(r) {
     kmem.freelist = r->next;
+    kmem.pgnr++;
+  }
   if(kmem.use_lock)
     release(&kmem.lock);
   return (char*)r;
 }
 
+int
+pgused(void)
+{
+  int pgnr;
+  
+  if(kmem.use_lock)
+    acquire(&kmem.lock);
+  pgnr = kmem.pgnr;
+  if(kmem.use_lock)
+    release(&kmem.lock);
+  
+  return pgnr;
+}

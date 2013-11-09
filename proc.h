@@ -1,6 +1,8 @@
 // Segments in proc->gdt.
 #define NSEGS     7
 
+#define NRKSM   32
+
 // Per-CPU state
 struct cpu {
   uchar id;                    // Local APIC ID; index into cpus[] below
@@ -51,6 +53,22 @@ struct context {
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
+// KSM handler entry
+struct ksmhd_t {
+  void* addr;
+  int ksmhd;
+  int id;
+  int prev;
+  int next;
+};
+
+//KSM handler table
+struct ksmhdtable_t {
+  int first_free;              // First free page id
+  int first_id;                // First available page id
+  struct ksmhd_t ksm[NRKSM];   // KSM handler array
+};
+
 // Per-process state
 struct proc {
   uint sz;                     // Size of process memory (bytes)
@@ -66,6 +84,7 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
+  struct ksmhdtable_t ksmhdtable; // keep track of KSM handlers per process
 };
 
 // Process memory is laid out contiguously, low addresses first:

@@ -1,0 +1,103 @@
+#include "types.h"
+#include "defs.h"
+#include "spinlock.h"
+
+typedef uint hash_t;
+typedef uint ksmhd_id;
+
+#define NAME_MAX 255    // maximum length of file name
+#define NRKSM    1024   // maximum number of kaust shared memories
+
+//#define IS_CREATE(flag) (flag & KSM_CREATE)
+//#define IS_OPEN(flag)   (flag & KSM_OPEN)
+
+// KSM handler type
+struct ksmhd_t {
+  hash_t hash;   // Each ksm handler is associated with a hash value
+  char ksm_name[NAME_MAX+1];  // KSM name
+  struct ksminfo_t* ksminfo;  // KSM info structure
+
+  ksmhd_id id;     //< Myself
+  ksmhd_id up;     //< Hashtree father
+  ksmhd_id left;   //< Hashtree left part, where all hashes are stricly inf
+  ksmhd_id right;  //< Hashtree right part, where hashes are equal or sup (collision mgmt)
+
+  ksmhd_id collision_next;     //< Collision : next in the linked-list of colliders
+  ksmhd_id collision_previous; //< Collision : previous in the linked-list of colliders
+};
+
+struct {
+  struct spinlock lock;
+  ksmhd_id first_free;
+  struct ksmhd_t ksm[NRKSM];
+} ksmtable;
+
+static const ksmhd_id ksmhd_id_root = 0;
+
+struct ksmhd_t*
+ksmhd_get(ksmhd_id id)
+{
+    if (id == ksmhd_id_EMPTY) {
+      panic ( "Attempt to fetch an EMPTY child !\n" );
+    }
+    if (id >= NRKSM) {
+      panic ( "Out of bounds : id=%u\n", id );
+    }
+    return &(ksmtable.ksm[id]);
+}
+
+struct ksmhd_t*
+ksmhd_get_root()
+{
+    return ksmhd_get(ksmhd_id_root);
+}
+
+static struct ksmhd_t*
+ksmhd_find_hash(const char* ksm_name, hash_t hash, int ksm_name_size)
+{
+    struct ksmhd_t* current = ksmhd_get_root();
+
+    Log ( "Finding hash for '%s' (up to %d chars) : hash=%llx \n", path, path_size, hash );
+
+    while (current) {
+        Log ( "At current=%p (%s), hash=%llx\n", current, current->d_name, current->hash );
+        if (hash < current->hash) {
+            current = ksmhd_get(current->left);
+            continue;
+        }
+        if (current->hash < hash) {
+            current = ksmhd_get(current->right);
+            continue;
+        }
+
+        if (ksmhd_equals(current, path, path_size)) {
+            return current;
+        }
+        Log ( "Got a collision with current=%llu:'%s' (hash=%llx), path=%s, hash=%llx!\n",
+              current->id, current->d_name, current->hash, path, hash );
+        current = ksmhd_get(current->collision_next);
+    }
+    return NULL;
+}
+
+int
+ksmget(char* name, uint size)
+{
+  struct ksmhd_t *p;
+
+  acquire(&ksmtable.lock);
+  for (p = ksmtable.ksm; p < &ksmtable.ksm[NRKSM]; p++) {
+    if (strcmp(p->ksm_name, name) == 0)
+      goto found;
+  }
+
+
+found:
+
+
+}
+
+int             ksmattach(int hd, int flag);
+int             ksmdetach(int hd);
+int             ksminfo(int hd, struct ksminfo_t* info);
+int             ksmdelete(int hd);

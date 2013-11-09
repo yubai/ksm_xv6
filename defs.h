@@ -7,6 +7,7 @@ struct proc;
 struct spinlock;
 struct stat;
 struct superblock;
+struct ksminfo_t;
 
 // bio.c
 void            binit(void);
@@ -66,6 +67,7 @@ char*           kalloc(void);
 void            kfree(char*);
 void            kinit1(void*, void*);
 void            kinit2(void*, void*);
+int             pgused(void);
 
 // kbd.c
 void            kbdintr(void);
@@ -179,3 +181,22 @@ void            clearpteu(pde_t *pgdir, char *uva);
 
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))
+
+// vm.c
+int mappages(pde_t *pgdir, void *va, uint size, uint pa, int perm);
+int unmappages(pde_t *pgdir, void *va, uint size, uint pa);
+
+// ksm.c
+void            ksminit(void);
+int             ksmget(char* name, uint size);
+int             ksmattach(int hd, int flag);
+int             ksmdetach(int hd);
+int             ksminfo(int hd, struct ksminfo_t* info);
+int             ksmdelete(int hd);
+
+// sem.c
+void seminit(void);
+int sem_get(uint name, int value);
+int sem_signal(int hd);
+int sem_wait(int hd);
+int sem_delete(int hd);
