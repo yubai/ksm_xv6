@@ -31,7 +31,7 @@
 #include "proc.h"
 
 #define NAME_MAX 32     // maximum length of file name
-#define NRKSM    32     // maximum number of kaust shared memories
+#define NRKSM    32     // maximum number of shared memories
 #define NRPG     1024   // maximum number of pages available for allocating
 
 struct ksm_pg_t {

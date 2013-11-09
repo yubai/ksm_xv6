@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /***
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files
@@ -20,7 +21,6 @@
  *     2012 Bai Yu - zjuyubai@gmail.com
  */
 
-// KAUST SHARED MEMORY
 #define KSM_RDWR           0x00
 #define KSM_READ           0x01
 
